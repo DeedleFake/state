@@ -7,7 +7,7 @@ type State[T any] interface {
 	// Listen registers a listener function to be called whenever the
 	// State's value changes.
 	//
-	// When Listen is first called, it immedietely calls the provided
+	// When Listen is first called, it immediately calls the provided
 	// function with the current value of the state and does not return
 	// until after the provided function returns.
 	Listen(func(T)) CancelFunc
