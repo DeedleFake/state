@@ -47,11 +47,13 @@ func Get[T any](s State[T]) (v T) {
 		return g.Get()
 	}
 
-	var cancel CancelFunc
-	cancel = s.Listen(func(c T) {
-		defer cancel()
-		v = c
+	var once sync.Once
+	cancel := s.Listen(func(c T) {
+		once.Do(func() {
+			v = c
+		})
 	})
+	cancel()
 	return v
 }
 
