@@ -15,6 +15,10 @@ func TestStatic(t *testing.T) {
 func TestDerived(t *testing.T) {
 	s := state.Derived(state.Static(3), func(v int) float64 { return float64(v) * 2.5 })
 	assert.Equal(t, 7.5, state.Get(s))
+
+	var latest float64
+	defer s.Listen(func(v float64) { latest = v })()
+	assert.Equal(t, 7.5, latest)
 }
 
 func TestNilGet(t *testing.T) {
@@ -32,4 +36,36 @@ func (s *testManualGetState[T]) Listen(f func(T)) state.CancelFunc {
 func TestManualGet(t *testing.T) {
 	s := &testManualGetState[int]{s: state.Static(3)}
 	assert.Equal(t, 3, state.Get[int](s))
+}
+
+func TestMutable(t *testing.T) {
+	s := state.Mutable(1)
+	assert.Equal(t, 1, state.Get[int](s))
+	s.Set(2)
+	assert.Equal(t, 2, state.Get[int](s))
+
+	var latest int
+	defer s.Listen(func(v int) { latest = v })()
+	assert.Equal(t, 2, latest)
+	s.Set(3)
+	assert.Equal(t, 3, latest)
+}
+
+func TestUniq(t *testing.T) {
+	m := state.Mutable(0)
+	s := state.Uniq[int](m)
+
+	var vals []int
+	defer s.Listen(func(v int) { vals = append(vals, v) })()
+	assert.DeepEqual(t, []int{0}, vals)
+	m.Set(1)
+	m.Set(1)
+	m.Set(2)
+	m.Set(1)
+	m.Set(3)
+	m.Set(3)
+	m.Set(3)
+	assert.DeepEqual(t, []int{0, 1, 2, 1, 3}, vals)
+
+	assert.Equal(t, 3, state.Get(s))
 }
