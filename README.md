@@ -1,6 +1,8 @@
 state
 =====
 
+[![Go Reference](https://pkg.go.dev/badge/deedles.dev/state.svg)](https://pkg.go.dev/deedles.dev/state)
+
 state provides a very simple mechanism for creating, manipulating, and listening to observable state in Go. All state is based around interface
 
 ```go
