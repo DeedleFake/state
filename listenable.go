@@ -25,7 +25,7 @@ func (lis *Listenable[T]) Add(f func(T)) uint32 {
 	lis.id++
 	lis.lis[id] = f
 
-	return lis.id
+	return id
 }
 
 // Remove deregisters the listener function with the given ID.
