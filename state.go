@@ -182,8 +182,7 @@ func (s mutator[T, F]) Set(v T) {
 }
 
 func (s mutator[T, F]) Get() T {
-	// Is this type inference limitation intentional? It seems odd.
-	return s.gm(Get[F](s.from))
+	return s.gm(Get(s.from))
 }
 
 type uniq[T any] struct {
