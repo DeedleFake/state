@@ -136,7 +136,7 @@ type derived[T, F any] struct {
 // another state, passing them through the mapping function m. In
 // other words, when from's value changes, the derived state's
 // listeners will be called with that new value passed through m.
-func Derived[T, F any, FS State[F]](from FS, m func(F) T) State[T] {
+func Derived[T, F any](from State[F], m func(F) T) State[T] {
 	return derived[T, F]{
 		from: from,
 		m:    m,
@@ -163,7 +163,7 @@ type mutator[T, F any] struct {
 // state runs successive values through mapGet, but it can also be set
 // and, when set, runs the new value through mapSet before setting the
 // underlying state.
-func Mutator[T, F any, FS MutableState[F]](from FS, mapGet func(F) T, mapSet func(T) F) MutableState[T] {
+func Mutator[T, F any](from MutableState[F], mapGet func(F) T, mapSet func(T) F) MutableState[T] {
 	return mutator[T, F]{
 		from: from,
 		gm:   mapGet,
@@ -193,7 +193,7 @@ type uniq[T any] struct {
 // Uniq returns a State that wraps from. Listeners of the returned
 // state will only see the first of successive values that are equal
 // to each other, similar to the Unix uniq command.
-func Uniq[T comparable, S State[T]](from S) State[T] {
+func Uniq[T comparable](from State[T]) State[T] {
 	return uniq[T]{
 		from: from,
 		equal: func(v1, v2 T) bool {
@@ -204,7 +204,7 @@ func Uniq[T comparable, S State[T]](from S) State[T] {
 
 // UniqFunc is like Uniq, but uses a custom comparison function to
 // determine equality.
-func UniqFunc[T any, S State[T]](from S, equal func(T, T) bool) State[T] {
+func UniqFunc[T any](from State[T], equal func(T, T) bool) State[T] {
 	return uniq[T]{
 		from:  from,
 		equal: equal,
