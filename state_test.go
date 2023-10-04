@@ -69,3 +69,16 @@ func TestUniq(t *testing.T) {
 
 	assert.Equal(t, 3, state.Get(s))
 }
+
+func TestIter(t *testing.T) {
+	m := state.Mutable(0)
+	go func() {
+		for i := range 10 {
+			m.Set(i)
+		}
+	}()
+
+	for v := range state.Iter(m) {
+		t.Log(v)
+	}
+}

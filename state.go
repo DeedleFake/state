@@ -228,3 +228,26 @@ func (u uniq[T]) Listen(f func(T)) CancelFunc {
 func (u uniq[T]) Get() T {
 	return Get(u.from)
 }
+
+type Seq[T any] func(yield func(T) bool)
+
+func Iter[T any](s State[T]) Seq[T] {
+	return func(yield func(T) bool) {
+		done := make(chan struct{})
+
+		var cancel CancelFunc
+		cancel = s.Listen(func(v T) {
+			select {
+			case <-done:
+				return
+			default:
+				if !yield(v) {
+					cancel()
+					close(done)
+				}
+			}
+		})
+
+		<-done
+	}
+}
