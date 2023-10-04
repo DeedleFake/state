@@ -90,9 +90,24 @@ func Mutable[T any](v T) MutableState[T] {
 }
 
 func (s *mutable[T]) Listen(f func(T)) CancelFunc {
-	id := s.lis.Add(f)
-	f(s.v)
+	s.m.RLock()
+	defer s.m.RUnlock()
+
+	done := make(chan struct{})
+	lf := func(v T) {
+		select {
+		case <-done:
+		default:
+			f(v)
+		}
+	}
+
+	id := s.lis.Add(lf)
+	lf(s.v)
+
+	var cancel sync.Once
 	return func() {
+		cancel.Do(func() { close(done) })
 		s.lis.Remove(id)
 	}
 }
